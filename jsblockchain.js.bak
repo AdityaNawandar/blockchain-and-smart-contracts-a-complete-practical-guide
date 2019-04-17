@@ -61,7 +61,7 @@ class Blockchain {
         let block = new Block(Date.now(), this.pendingTransactions, this.GetLatestBlock().hash)
         block.MineBlock(this.difficulty);
 
-        console.log("Mined transaction(s) successfully.");
+        console.log("Mined new block successfully.");
         this.chain.push(block);
         this.pendingTransactions = [new Transaction(minerAddress, null, this.miningReward)];
     }
@@ -93,11 +93,11 @@ class Blockchain {
             const currentBlock = this.chain[i];
             const previousBlock = this.chain[i-1];
 
-            if (currentBlock.hash !== currentBlock.CalculateHash()) {
+            if (currentBlock.hash != currentBlock.CalculateHash()) {
                 return false;
             }
 
-            if (currentBlock.previousHash !== previousBlock.hash) {
+            if (currentBlock.previousHash != previousBlock.hash) {
                 return false;
             }
         }
@@ -109,18 +109,13 @@ class Blockchain {
 
 //create blocks
 let sikkaCoin = new Blockchain();
-var transaction1 = new Transaction("Anil", "Mukesh", 1000);
+var transaction1 = new Transaction("Anil", "Mukesh", 1000)
 sikkaCoin.CreateTransaction(transaction1);
-var transaction2 = new Transaction("Rakesh", "Rajesh", 99.5);
+var transaction2 = new Transaction("Rakesh", "Rajesh", 99.5)
 sikkaCoin.CreateTransaction(transaction2);
-console.log("Mining block transactions...");
+console.log("Mining started...");
 sikkaCoin.MinePendingTransactions("MinerAddress");
 console.log("Balance for Anil is: " + sikkaCoin.GetBalanceOfAddress("Anil"));
 console.log("Balance for Mukesh is: " + sikkaCoin.GetBalanceOfAddress("Mukesh"));
-console.log("Balance for Miner is: " + sikkaCoin.GetBalanceOfAddress("MinerAddress"));
-console.log("Mining reward transaction for the block...");
-sikkaCoin.MinePendingTransactions("MinerAddress");
-console.log("Balance for Miner is: " + sikkaCoin.GetBalanceOfAddress("MinerAddress"));
-console.log("Mining reward for reward transaction...");
-sikkaCoin.MinePendingTransactions("MinerAddress");
-console.log("Balance for Miner is: " + sikkaCoin.GetBalanceOfAddress("MinerAddress"));
+console.log("Balance for Rakesh is: " + sikkaCoin.GetBalanceOfAddress("Rakesh"));
+console.log("Balance for Rakesh is: " + sikkaCoin.GetBalanceOfAddress("Rajesh"));
