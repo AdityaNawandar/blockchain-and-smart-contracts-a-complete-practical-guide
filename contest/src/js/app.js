@@ -13,18 +13,6 @@ App = {
     return App.initWeb3();
   },
 
-  // initWeb3: async function () {
-  //   if (typeof web3 !== 'undefined') {
-  //     App.web3Provider = web3.currentProvider;
-  //     web3 = new Web3(web3.currentProvider);
-  //   }
-  //   else {
-  //     //specify deault instance if no web3 instance is provided
-  //     App.web3Provider = new Web3.providers.HttpProvider('http://localhost:1337');
-  //     web3 = new Web3(App.web3Provider);
-  //   }
-  //   return App.initContract();
-  // },
 
   initWeb3: function () {
     if (typeof web3 !== 'undefined') {
@@ -44,28 +32,27 @@ App = {
 
   initContract: function () {
 
-    $.getJSON("Contest.json", function(contest) {
+    $.getJSON("Contest.json", function (contest) {
       // Instantiate a new truffle contract from the artifact
       App.contracts.Contest = TruffleContract(contest);
       // Connect provider to interact with contract
       App.contracts.Contest.setProvider(App.web3Provider);
 
-    //App.listenForEvents();  
-    return App.render();
-    
+      App.listenForEvents();  
+      return App.render();
 
-
-    // $.getJSON("Contest.json", function (contest) {
-
-    //   //Instantiate a new truffle contract from the artifact
-    //   App.contracts.Contest = TruffleContract(contest)
-    //   //Connect provider to interact with the contract
-    //   App.contracts.Contest.setProvider(App.web3Provider);
-    //   return App.render();
     });
+  },
 
-    // return App.render();
-    //return App.bindEvents();
+  listenForEvents: function () {
+    App.contracts.Contest.deployed().then(function (instance) {
+      instance.votedEvent({}, { fromBlock: 0, toBlock: 'latest' }).watch(function (err, event) {
+        console.log("Event triggered", event);
+
+        //reload after a vote is recorded
+        App.render();
+      });
+    });
   },
 
   render: function () {
@@ -95,18 +82,28 @@ App = {
       var contestantTemplate = "";
       contestantsResults.empty();
 
+      //select contestant to vote
+      var ddlSelectContestant = $("#ddlSelectContestant");
+      ddlSelectContestant.empty();
+
+
       for (var i = 1; i <= contestantCount; i++) {
         contestInstance.contestants(i).then(function (contestant) {
           var id = contestant[0];
           var name = contestant[1];
           var voteCount = contestant[2];
 
+          //load results in the table
           contestantTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td>" + voteCount + "</td></tr>";
           contestantsResults.append(contestantTemplate);
+
+          //load the dropdown with contestants' list
+          var contestantsList = "<option value='" + id + "'>" + name + "</option>"
+          ddlSelectContestant.append(contestantsList);
         });
 
         //Render contestant results
-        
+
       }
 
       loader.hide();
@@ -116,26 +113,19 @@ App = {
     });
   },
 
+  castVote: function () {
 
-  // bindEvents: function () {
-  //   $(document).on('click', '.btn-adopt', App.handleAdopt);
-  // },
-
-  // markAdopted: function (adopters, account) {
-  //   /*
-  //    * Replace me...
-  //    */
-  // },
-
-  // handleAdopt: function (event) {
-  //   event.preventDefault();
-
-  //   var petId = parseInt($(event.target).data('id'));
-
-  //   /*
-  //    * Replace me...
-  //    */
-  // }
+    var contestantId = $("#ddlSelectContestant").val();
+    //alert("contestantId = " + contestantId);
+    App.contracts.Contest.deployed().then(function (instance) {
+      return instance.vote(contestantId, { from: App.account })
+    }).then(function (result) {
+      $("#loader").show();
+      $("#content").hide();
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
 
 };
 

@@ -49,11 +49,28 @@
         <tbody id="tbdyContestantResults">
 
         </tbody>
-        <hr/>
-        <p id="accountAddress" class="text-center">abc</p>
+        <hr />
+        <p id="accountAddress" class="text-center"></p>
       </table>
+      <form onSubmit="App.castVote(); return false;" class="text-center">
+          <div class="form-group">
+            <label for="ddlSelectContestant">Select Candidate</label>
+            <select class="select-control" id="ddlSelectContestant">
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Vote</button>
+          <hr />
+        </form>
+        
+        
+      <!-- <form class="text-center" onsubmit="App.castVote();">
+        <div class="formgroup">
+          <label>Select Contestant</label>
+          <select id="ddlSelectContestant" class="select-control"></select>
+        </div>
+        <button type="submit" id="btnVote" class="btn btn-primary">Vote</button>
+      </form> -->
     </div>
-
   </div>
 
 
